@@ -1,0 +1,797 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>TapView Earning</title>
+
+<script src="https://telegram.org/js/telegram-web-app.js"></script>
+
+<style>
+*{box-sizing:border-box;margin:0;padding:0;font-family:Arial,sans-serif}
+body{background:#f2f4f8;color:#222}
+
+#openPage{
+min-height:100vh;
+display:flex;
+align-items:center;
+justify-content:center;
+background:linear-gradient(135deg,#168cff,#635bff)
+}
+
+.open-box{
+width:90%;
+max-width:400px;
+text-align:center;
+background:white;
+padding:35px 25px;
+border-radius:25px;
+box-shadow:0 15px 40px #0003
+}
+
+.logo{
+width:75px;
+height:75px;
+border-radius:50%;
+background:#168cff;
+color:white;
+display:flex;
+align-items:center;
+justify-content:center;
+margin:0 auto 20px;
+font-size:30px;
+font-weight:bold
+}
+
+.open-box h1{margin-bottom:10px}
+.open-box p{color:#777;margin-bottom:25px}
+
+button{cursor:pointer}
+
+.open-btn{
+width:100%;
+border:0;
+padding:15px;
+border-radius:12px;
+background:#168cff;
+color:white;
+font-size:18px;
+font-weight:bold
+}
+
+#app{
+display:none;
+min-height:100vh;
+padding-bottom:80px
+}
+
+.top{
+background:#168cff;
+color:white;
+padding:20px;
+border-radius:0 0 25px 25px
+}
+
+.top-row{
+display:flex;
+justify-content:space-between;
+align-items:center
+}
+
+.balance{
+font-size:25px;
+font-weight:bold
+}
+
+.container{padding:18px}
+
+.card{
+background:white;
+border-radius:18px;
+padding:20px;
+margin-bottom:15px;
+box-shadow:0 5px 20px #0000000d
+}
+
+.ad-card{text-align:center}
+.ad-icon{font-size:50px;margin-bottom:10px}
+
+.ad-btn,.withdraw-btn,.join-btn{
+width:100%;
+border:0;
+padding:14px;
+border-radius:12px;
+color:white;
+font-size:16px;
+font-weight:bold;
+margin-top:12px
+}
+
+.ad-btn{background:#168cff}
+.join-btn{background:#229ed9}
+.withdraw-btn{background:#21a366}
+
+.progress{
+height:10px;
+background:#e5e5e5;
+border-radius:20px;
+overflow:hidden;
+margin-top:12px
+}
+
+.progress-bar{
+height:100%;
+background:#168cff;
+width:0
+}
+
+.stats{
+display:grid;
+grid-template-columns:1fr 1fr;
+gap:12px
+}
+
+.stat{
+background:white;
+padding:18px;
+border-radius:16px;
+text-align:center
+}
+
+.stat strong{
+display:block;
+font-size:22px;
+margin-top:5px
+}
+
+.bottom-nav{
+position:fixed;
+bottom:0;
+left:0;
+right:0;
+background:white;
+height:70px;
+display:flex;
+justify-content:space-around;
+align-items:center;
+box-shadow:0 -5px 20px #0002
+}
+
+.nav-btn{
+border:0;
+background:none;
+color:#777;
+font-size:12px
+}
+
+.nav-btn.active{
+color:#168cff;
+font-weight:bold
+}
+
+.page{display:none}
+.page.active{display:block}
+
+input,select{
+width:100%;
+padding:13px;
+border:1px solid #ddd;
+border-radius:10px;
+margin-top:8px
+}
+
+label{
+display:block;
+margin-top:12px;
+font-weight:bold
+}
+
+.history-item{
+padding:12px 0;
+border-bottom:1px solid #eee;
+display:flex;
+justify-content:space-between
+}
+
+#timerBox{
+display:none;
+position:fixed;
+inset:0;
+background:#000b;
+z-index:9999;
+align-items:center;
+justify-content:center
+}
+
+.timer-card{
+width:90%;
+max-width:380px;
+background:white;
+padding:25px;
+border-radius:20px;
+text-align:center
+}
+
+.timer{
+font-size:45px;
+font-weight:bold;
+margin:20px;
+color:#168cff
+}
+
+.close-btn{
+display:none;
+width:100%;
+padding:14px;
+border:0;
+border-radius:12px;
+background:#e53935;
+color:white;
+font-size:18px;
+font-weight:bold
+}
+</style>
+</head>
+
+<body>
+
+<div id="openPage">
+<div class="open-box">
+<div class="logo">TV</div>
+<h1>TapView Earning</h1>
+<p>Ads দেখুন এবং Coins Earn করুন</p>
+<button class="open-btn" onclick="openApp()">OPEN APP</button>
+</div>
+</div>
+
+<div id="app">
+
+<div class="top">
+<div class="top-row">
+<div>
+<small>আপনার Balance</small>
+<div class="balance">🪙 <span id="balance">0</span></div>
+</div>
+
+<div>
+<small>আজকের Ads</small>
+<div class="balance">
+<span id="adsToday">0</span>/30
+</div>
+</div>
+</div>
+</div>
+
+<div class="container">
+
+<div id="home" class="page active">
+
+<div class="card ad-card">
+<div class="ad-icon">📺</div>
+<h2>Watch Ads</h2>
+
+<p style="margin-top:8px;color:#777">
+প্রতি Ads দেখলে পাবেন 15 Coins
+</p>
+
+<div class="progress">
+<div class="progress-bar" id="progressBar"></div>
+</div>
+
+<p style="margin-top:10px">
+আজ দেখেছেন:
+<b><span id="adCount">0</span>/30</b>
+</p>
+
+<button class="ad-btn" onclick="watchAd()">
+▶ WATCH AD
+</button>
+</div>
+
+<div class="card">
+<h3>📢 Join Channel</h3>
+
+<p style="margin-top:8px;color:#777">
+Telegram Channel Join করলে 100 Coins
+</p>
+
+<button class="join-btn" onclick="joinChannel()">
+JOIN CHANNEL +100 🪙
+</button>
+</div>
+
+<div class="stats">
+
+<div class="stat">
+<small>Total Ads</small>
+<strong id="totalAds">0</strong>
+</div>
+
+<div class="stat">
+<small>Total Earn</small>
+<strong id="totalEarn">0</strong>
+</div>
+
+</div>
+</div>
+
+<div id="withdraw" class="page">
+
+<div class="card">
+
+<h2>💰 Withdraw</h2>
+
+<p style="margin-top:10px;color:#777">
+Minimum withdrawal: <b>1100 Coins</b>
+</p>
+
+<label>Payment Method</label>
+
+<select id="method">
+<option value="bkash">bKash</option>
+<option value="nagad">Nagad</option>
+<option value="binance">Binance</option>
+</select>
+
+<label>Account / Wallet</label>
+
+<input
+type="text"
+id="account"
+placeholder="আপনার নম্বর বা Wallet ID"
+>
+
+<label>Amount (Coins)</label>
+
+<input
+type="number"
+id="withdrawAmount"
+placeholder="Minimum 1100"
+>
+
+<button class="withdraw-btn" onclick="withdraw()">
+REQUEST WITHDRAW
+</button>
+
+</div>
+</div>
+
+<div id="invite" class="page">
+
+<div class="card">
+
+<h2>👥 Invite Friends</h2>
+
+<p style="margin-top:12px;color:#777">
+প্রতি সফল Invite এ 100 Coins
+</p>
+
+<div
+style="margin-top:20px;padding:15px;background:#f1f5f9;border-radius:10px;word-break:break-all"
+id="refLink">
+Loading...
+</div>
+
+<button class="ad-btn" onclick="copyReferral()">
+COPY INVITE LINK
+</button>
+
+</div>
+</div>
+
+<div id="history" class="page">
+
+<div class="card">
+
+<h2>📜 History</h2>
+
+<div
+id="historyList"
+style="margin-top:15px">
+<p style="color:#777">No transactions yet.</p>
+</div>
+
+</div>
+</div>
+
+<div id="bonus" class="page">
+
+<div class="card">
+
+<h2>🎁 Bonus</h2>
+
+<p style="margin-top:12px">
+🎬 Ads Reward: <b>15 Coins</b>
+</p>
+
+<p style="margin-top:10px">
+👥 Invite Reward: <b>100 Coins</b>
+</p>
+
+<p style="margin-top:10px">
+📢 Channel Join Bonus: <b>100 Coins</b>
+</p>
+
+<p style="margin-top:10px">
+💰 Minimum Withdraw: <b>1100 Coins</b>
+</p>
+
+</div>
+</div>
+
+</div>
+
+<div class="bottom-nav">
+
+<button class="nav-btn active"
+onclick="showPage('home',this)">
+🏠<br>Home
+</button>
+
+<button class="nav-btn"
+onclick="showPage('withdraw',this)">
+💰<br>Withdraw
+</button>
+
+<button class="nav-btn"
+onclick="showPage('invite',this)">
+👥<br>Invite
+</button>
+
+<button class="nav-btn"
+onclick="showPage('history',this)">
+📜<br>History
+</button>
+
+<button class="nav-btn"
+onclick="showPage('bonus',this)">
+🎁<br>Bonus
+</button>
+
+</div>
+
+</div>
+
+<div id="timerBox">
+
+<div class="timer-card">
+
+<h2>Advertisement</h2>
+
+<p style="margin-top:8px">
+Linkটি Open হয়েছে
+</p>
+
+<div class="timer" id="timer">
+20
+</div>
+
+<p id="waitText">
+20 সেকেন্ড অপেক্ষা করুন...
+</p>
+
+<button
+class="close-btn"
+id="closeBtn"
+onclick="closeAd()">
+✕ CLOSE
+</button>
+
+</div>
+</div>
+
+<script>
+
+const tg=window.Telegram?.WebApp;
+
+if(tg){
+tg.ready();
+tg.expand();
+}
+
+const ADS_PER_DAY=30;
+const AD_REWARD=15;
+const INVITE_REWARD=100;
+const CHANNEL_REWARD=100;
+const MIN_WITHDRAW=1100;
+
+const adLinks=[
+"https://omg10.com/4/10816823",
+"https://omg10.com/4/10739768",
+"https://omg10.com/4/10739519"
+];
+
+const channelLink="https://t.me/tepviewearning";
+
+let balance=Number(localStorage.getItem("balance")||0);
+
+let totalAds=
+Number(localStorage.getItem("totalAds")||0);
+
+let savedDate=
+localStorage.getItem("adDate")||"";
+
+let today=
+new Date().toISOString().slice(0,10);
+
+let adsToday=
+Number(localStorage.getItem("adsToday")||0);
+
+if(savedDate!==today){
+
+adsToday=0;
+
+localStorage.setItem("adsToday",0);
+
+localStorage.setItem("adDate",today);
+
+}
+
+function openApp(){
+
+document.getElementById("openPage").style.display="none";
+
+document.getElementById("app").style.display="block";
+
+updateUI();
+
+createReferralLink();
+
+}
+
+function updateUI(){
+
+balanceEl().textContent=balance;
+
+document.getElementById("adsToday").textContent=adsToday;
+
+document.getElementById("adCount").textContent=adsToday;
+
+document.getElementById("totalAds").textContent=totalAds;
+
+document.getElementById("totalEarn").textContent=
+totalAds*AD_REWARD;
+
+document.getElementById("progressBar").style.width=
+(adsToday/ADS_PER_DAY*100)+"%";
+
+}
+
+function balanceEl(){
+
+return document.getElementById("balance");
+
+}
+
+let timerInterval;
+
+function watchAd(){
+
+if(adsToday>=ADS_PER_DAY){
+
+alert("আজকের 30টি Ads Limit শেষ হয়েছে।");
+
+return;
+
+}
+
+let link=
+adLinks[Math.floor(Math.random()*adLinks.length)];
+
+window.open(link,"_blank");
+
+document.getElementById("timerBox").style.display="flex";
+
+let seconds=20;
+
+document.getElementById("timer").textContent=seconds;
+
+document.getElementById("closeBtn").style.display="none";
+
+clearInterval(timerInterval);
+
+timerInterval=setInterval(()=>{
+
+seconds--;
+
+document.getElementById("timer").textContent=seconds;
+
+document.getElementById("waitText").textContent=
+seconds>0
+?seconds+" সেকেন্ড অপেক্ষা করুন..."
+:"আপনি এখন Close করতে পারবেন";
+
+if(seconds<=0){
+
+clearInterval(timerInterval);
+
+document.getElementById("closeBtn").style.display="block";
+
+}
+
+},1000);
+
+}
+
+function closeAd(){
+
+document.getElementById("timerBox").style.display="none";
+
+adsToday++;
+
+totalAds++;
+
+balance+=AD_REWARD;
+
+localStorage.setItem("adsToday",adsToday);
+
+localStorage.setItem("totalAds",totalAds);
+
+localStorage.setItem("balance",balance);
+
+addHistory(
+"Advertisement Reward",
+"+"+AD_REWARD+" Coins"
+);
+
+updateUI();
+
+}
+
+function joinChannel(){
+
+window.open(channelLink,"_blank");
+
+alert("Channel Join verification-এর জন্য backend প্রয়োজন।");
+
+}
+
+function createReferralLink(){
+
+let userId="demo";
+
+let link=
+location.origin+
+location.pathname+
+"?ref="+
+userId;
+
+document.getElementById("refLink").textContent=link;
+
+}
+
+function copyReferral(){
+
+navigator.clipboard.writeText(
+document.getElementById("refLink").textContent
+);
+
+alert("Invite Link copied!");
+
+}
+
+function withdraw(){
+
+let method=
+document.getElementById("method").value;
+
+let account=
+document.getElementById("account").value.trim();
+
+let amount=
+Number(document.getElementById("withdrawAmount").value);
+
+if(!account)
+return alert("Account / Wallet দিন।");
+
+if(amount<MIN_WITHDRAW)
+return alert("Minimum withdrawal 1100 Coins.");
+
+if(amount>balance)
+return alert("আপনার পর্যাপ্ত Coins নেই।");
+
+balance-=amount;
+
+localStorage.setItem("balance",balance);
+
+addHistory(
+"Withdraw - "+method,
+"-"+amount+" Coins"
+);
+
+updateUI();
+
+alert("Withdrawal request তৈরি হয়েছে।");
+
+}
+
+function addHistory(title,amount){
+
+let history=
+JSON.parse(
+localStorage.getItem("history")||"[]"
+);
+
+history.unshift({
+
+title:title,
+amount:amount,
+date:new Date().toLocaleString()
+
+});
+
+localStorage.setItem(
+"history",
+JSON.stringify(history)
+);
+
+loadHistory();
+
+}
+
+function loadHistory(){
+
+let history=
+JSON.parse(
+localStorage.getItem("history")||"[]"
+);
+
+let box=
+document.getElementById("historyList");
+
+if(!history.length){
+
+box.innerHTML=
+'<p style="color:#777">No transactions yet.</p>';
+
+return;
+
+}
+
+box.innerHTML=
+history.map(i=>`
+
+<div class="history-item">
+
+<div>
+<b>${i.title}</b>
+<br>
+<small>${i.date}</small>
+</div>
+
+<b>${i.amount}</b>
+
+</div>
+
+`).join("");
+
+}
+
+function showPage(page,button){
+
+document
+.querySelectorAll(".page")
+.forEach(p=>p.classList.remove("active"));
+
+document
+.getElementById(page)
+.classList.add("active");
+
+document
+.querySelectorAll(".nav-btn")
+.forEach(b=>b.classList.remove("active"));
+
+button.classList.add("active");
+
+if(page==="history")
+loadHistory();
+
+}
+
+loadHistory();
+updateUI();
+
+</script>
+
+</body>
+</html>
