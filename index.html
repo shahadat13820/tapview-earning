@@ -1,0 +1,40 @@
+<!doctype html>
+<html lang="bn">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>TapView Earning</title>
+<style>
+body{margin:0;font-family:Arial;background:#f3f6fa;color:#17202a}.top{background:#168cff;color:#fff;padding:22px;border-radius:0 0 24px 24px}.wrap{max-width:520px;margin:auto;padding:16px}.balance{font-size:28px;font-weight:700}.card{background:#fff;border-radius:18px;padding:18px;margin:14px 0;box-shadow:0 4px 18px #0001}.ad{border:1px solid #e8edf2;border-radius:14px;padding:14px;margin-top:12px}.btn{width:100%;padding:13px;border:0;border-radius:11px;color:#fff;background:#168cff;font-weight:700;margin-top:10px}.blue{background:#229ed9}.page{display:none;padding-bottom:80px}.page.active{display:block}.nav{position:fixed;bottom:0;left:0;right:0;height:65px;background:#fff;display:flex;justify-content:space-around;align-items:center;box-shadow:0 -4px 15px #0002}.nav button{border:0;background:none;font-size:12px;color:#667}input,select{width:100%;padding:12px;border:1px solid #dce2e8;border-radius:10px;margin-top:7px}#timer{display:none;position:fixed;inset:0;background:#000b;z-index:9;align-items:center;justify-content:center}.modal{background:#fff;width:88%;max-width:380px;border-radius:20px;padding:24px;text-align:center}.sec{font-size:46px;font-weight:700;color:#168cff;margin:20px}
+</style>
+</head>
+<body>
+<div class="top"><div class="wrap"><small>Balance</small><div class="balance">🪙 <span id="balance">0</span></div><div>আজকের Ads: <b id="today">0</b>/30</div></div></div>
+<div class="wrap">
+<section id="home" class="page active">
+<div class="card"><h2>📺 Watch Ads</h2><p>প্রতি Ad = 15 Coins</p>
+<div class="ad"><b>Ad 1</b><button class="btn" onclick="watch(0)">OPEN AD 1</button></div>
+<div class="ad"><b>Ad 2</b><button class="btn" onclick="watch(1)">OPEN AD 2</button></div>
+<div class="ad"><b>Ad 3</b><button class="btn" onclick="watch(2)">OPEN AD 3</button></div>
+</div>
+<div class="card"><h3>📢 Join Channel</h3><p>Membership verified হলে 100 Coins</p><button class="btn blue" onclick="join()">JOIN CHANNEL</button></div>
+</section>
+<section id="withdraw" class="page"><div class="card"><h2>💰 Withdraw</h2><p>Minimum: 1100 Coins</p><select id="method"><option>bKash</option><option>Nagad</option><option>Binance</option></select><input id="account" placeholder="Account / Wallet ID"><input id="amount" type="number" placeholder="Coins"><button class="btn" onclick="withdraw()">REQUEST WITHDRAW</button></div></section>
+<section id="invite" class="page"><div class="card"><h2>👥 Invite</h2><p>প্রতি verified referral = 100 Coins</p><input id="ref" readonly><button class="btn" onclick="copyRef()">COPY LINK</button></div></section>
+<section id="history" class="page"><div class="card"><h2>📜 History</h2><div id="hist">Loading...</div></div></section>
+<section id="bonus" class="page"><div class="card"><h2>🎁 Bonus</h2><p>Ad: 15 Coins</p><p>Invite: 100 Coins</p><p>Channel: 100 Coins</p><p>Minimum withdrawal: 1100 Coins</p></div></section>
+</div>
+<div class="nav"><button onclick="page('home')">🏠<br>Home</button><button onclick="page('withdraw')">💰<br>Withdraw</button><button onclick="page('invite')">👥<br>Invite</button><button onclick="page('history')">📜<br>History</button><button onclick="page('bonus')">🎁<br>Bonus</button></div>
+<div id="timer"><div class="modal"><h2>Advertisement</h2><p>20 seconds remaining</p><div class="sec" id="sec">20</div><button id="close" class="btn" style="display:none" onclick="finish()">✕ CLOSE</button></div></div>
+<script>
+const ads=["https://omg10.com/4/10816823","https://omg10.com/4/10739768","https://omg10.com/4/10739519"],API="https://YOUR-BACKEND-URL";
+let t;
+async function api(p,o={}){o.headers={...(o.headers||{}),'Content-Type':'application/json'};let r=await fetch(API+p,o);let d=await r.json();if(!r.ok)throw Error(d.error||'Error');return d}
+async function load(){try{let d=await api('/api/me');balance.textContent=d.balance;today.textContent=d.adsToday;ref.value=d.referralLink;hist.innerHTML=d.history.map(x=>`<p>${x.type}: <b>${x.amount}</b></p>`).join('')||'No transactions'}catch(e){console.log(e)}}
+function watch(i){window.open(ads[i],'_blank');timer.style.display='flex';let n=20;sec.textContent=n;close.style.display='none';clearInterval(t);t=setInterval(()=>{sec.textContent=--n;if(n<=0){clearInterval(t);close.style.display='block'}},1000)}
+async function finish(){timer.style.display='none';try{let d=await api('/api/ads/complete',{method:'POST'});alert('+'+d.reward+' Coins');load()}catch(e){alert(e.message)}}
+function join(){window.open('https://t.me/tepviewearning','_blank')}
+async function withdraw(){try{let d=await api('/api/withdraw',{method:'POST',body:JSON.stringify({method:method.value,account:account.value,amount:Number(amount.value)})});alert(d.message);load()}catch(e){alert(e.message)}}
+function copyRef(){navigator.clipboard.writeText(ref.value);alert('Copied')}
+function page(x){document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));document.getElementById(x).classList.add('active');if(x==='history')load()}
+load();
+</script></body></html>
